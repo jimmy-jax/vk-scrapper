@@ -22,8 +22,8 @@ Apify.main(async () => {
         launchContext: {
             // Chrome with stealth should work for most websites.
             // If it doesn't, feel free to remove this.
-            useChrome: true,
-            stealth: true,
+            // useChrome: true,
+            // stealth: true,
         },
         // browserPoolOptions: {
         //     useFingerprints: true,
