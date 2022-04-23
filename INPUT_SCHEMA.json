@@ -32,8 +32,11 @@
             "type": "integer",
             "title": "Max Level",
             "description": "Maximum level of crawling",
-            "editor": "textfield",
-            "default": 0
+            "editor": "number",
+            "default": 0,
+            "minimum": 0,
+            "maximum": 3,
+            "nullable": false
         }
     },
     "required": [
