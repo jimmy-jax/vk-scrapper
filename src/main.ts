@@ -33,6 +33,7 @@ Apify.main(async () => {
         // sessionPoolOptions: {
         //     maxPoolSize: 3,
         // },
+        maxRequestsPerCrawl: process.env.MAX_REQUESTS_PER_CRAWL ? +process.env.MAX_REQUESTS_PER_CRAWL : undefined,
         persistCookiesPerSession: true,
         preNavigationHooks: [
             async ({ page, request, session }) => {
