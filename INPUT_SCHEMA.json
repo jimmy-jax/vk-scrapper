@@ -29,10 +29,10 @@
             "default": "https://vk.com"
         },
         "maxLevel": {
-            "type": "string",
+            "type": "integer",
             "title": "Max Level",
             "description": "Maximum level of crawling",
-            "editor": "integer",
+            "editor": "textfield",
             "default": 0
         }
     },
