@@ -8,6 +8,17 @@ export class FriendsPage extends BasePage {
         const input = await getInput() as Schema;
         const { level } = this.context.request.userData;
 
+        // https://intoli.com/blog/scrape-infinite-scroll/
+        //
+        // await this.context.page.waitForNetworkIdle('');
+
+        // await this.context.page.evaluate(async () => {
+        //     while (Math.round(window.pageYOffset + window.innerHeight) < document.body.scrollHeight) {
+        //         window.scrollTo(0, document.body.scrollHeight);
+        //         await new Promise((delayResolve) => setTimeout(delayResolve, 100));
+        //     }
+        // });
+
         const friends = await this.context.page.evaluate(() => {
             return Array.from(document.querySelectorAll('.friends_user_info'))
                 .map((x) => {
