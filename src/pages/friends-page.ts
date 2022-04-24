@@ -1,4 +1,4 @@
-import { getInput } from 'apify';
+import { getInput, pushData } from 'apify';
 import { Schema } from '../models';
 import { BasePage } from './base-page';
 import { PageTypes } from './page-types';
@@ -8,19 +8,35 @@ export class FriendsPage extends BasePage {
         const input = await getInput() as Schema;
         const { level } = this.context.request.userData;
 
-        const friendUrls = await this.context.page.$$eval('.friends_field_title a', ($a) => {
-            const items = [];
+        const friends = await this.context.page.evaluate(() => {
+            return Array.from(document.querySelectorAll('.friends_user_info'))
+                .map((x) => {
+                    const toggleFriendFuncText = x.querySelector('a[onclick^="return showWriteMessageBox').getAttribute('onclick');
+                    const id = +/return showWriteMessageBox\(event,\s*(?<id>\d+)\)/gm.exec(toggleFriendFuncText).groups.id;
 
-            $a.forEach((a) => items.push(a.getAttribute('href')));
-
-            return items;
+                    return {
+                        id,
+                        url: x.querySelector('.friends_field_title a').getAttribute('href'),
+                        name: x.querySelector('.friends_field_title a').textContent,
+                    };
+                });
         });
 
-        friendUrls.forEach(async (friendUrl) => {
+        friends.forEach(async (friend) => {
+            pushData({
+                id: friend.id,
+                url: new URL(friend.url, input.baseUrl).toString(),
+                name: friend.name,
+                level,
+            });
+
+            if (level >= input.maxCrawlingLevel) { return; }
+
+            const friendsUrl = `/friends?id=${friend.id}&section=all`;
             await this.context.requestQueue.addRequest({
-                url: new URL(friendUrl, input.baseUrl).toString(),
+                url: new URL(friendsUrl, input.baseUrl).toString(),
                 userData: {
-                    label: PageTypes.Profile,
+                    label: PageTypes.Friends,
                     level: level + 1,
                 },
             });

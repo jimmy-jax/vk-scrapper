@@ -10,9 +10,9 @@ export class ProfilePage extends BasePage {
 
         const url = this.context.request.loadedUrl;
         const name = await this.context.page.$eval('h1', (h1) => h1.textContent);
-        pushData({ url, name });
+        pushData({ url, name, level });
 
-        if (level > input.maxCrawlingLevel) { return; }
+        if (level >= input.maxCrawlingLevel) { return; }
 
         const friendsLink = await this.context.page.$('a[href^="/friends?id="]');
         if (!friendsLink) { return; }
@@ -23,7 +23,7 @@ export class ProfilePage extends BasePage {
             url: new URL(friendsUrl, input.baseUrl).toString(),
             userData: {
                 label: PageTypes.Friends,
-                level,
+                level: level + 1,
             },
         });
     }
