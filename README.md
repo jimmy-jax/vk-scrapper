@@ -1,3 +1,33 @@
+# Run Locally
+
+Please create next file in you local directory
+
+```./apify_storage/key_value_stores/default/INPUT.json```
+
+With content like this
+
+```
+{
+    "baseUrl": "https://vk.com",
+    "loginUsername": "<YOU_VK_USERNAME_OR_MOBILE_PHONE>",
+    "loginPassword": "<YOU_VK_PASSWORD>",
+    "startUrl": "<VK_PROFILE_PAGE_YOU_WANT_TO_START_FROM>",
+    "maxCrawlingLevel": 1
+}
+```
+
+Also,  in project root directory you can create file named ```.env``` to specify some scrapper parameters:
+
+```
+APIFY_LOG_LEVEL=DEBUG
+APIFY_MEMORY_MBYTES=12192
+
+VK_SCRAPPER_NO_PROXY=1
+# VK_SCRAPPER_MAX_REQUESTS_PER_CRAWL=10
+# VK_SCRAPPER_AUTOSCALED_POOL_CONCURRENCY=1
+# VK_SCRAPPER_SESSION_MAX_POOL_SIZE=1
+```
+
 # PuppeteerCrawler project
 
 This template is a production ready boilerplate for developing with `PuppeteerCrawler`.
