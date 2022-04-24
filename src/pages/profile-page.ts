@@ -12,7 +12,7 @@ export class ProfilePage extends BasePage {
         const name = await this.context.page.$eval('h1', (h1) => h1.textContent);
         pushData({ url, name });
 
-        if (level > input.maxLevel) { return; }
+        if (level > input.maxCrawlingLevel) { return; }
 
         const friendsLink = await this.context.page.$('a[href^="/friends?id="]');
         if (!friendsLink) { return; }
