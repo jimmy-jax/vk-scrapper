@@ -3,7 +3,7 @@ export interface Schema {
     loginUsername: string;
     loginPassword: string;
     startUrl: string;
-    maxLevel: number;
+    maxCrawlingLevel: number;
 }
 
 export interface InputUrl {

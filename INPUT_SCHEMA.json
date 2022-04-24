@@ -28,9 +28,9 @@
             "editor": "textfield",
             "default": "https://vk.com"
         },
-        "maxLevel": {
+        "maxCrawlingLevel": {
             "type": "integer",
-            "title": "Max Level",
+            "title": "Max Crawling Level",
             "description": "Maximum level of crawling",
             "editor": "number",
             "default": 0,

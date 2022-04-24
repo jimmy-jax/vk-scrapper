@@ -1,6 +1,10 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
 import Apify from 'apify';
 import { Schema } from './models';
 import { PageContext, PageFactory } from './pages';
+import { HTTPResponse } from 'puppeteer';
 
 Apify.main(async () => {
     const input = await Apify.getInput() as Schema;
@@ -19,27 +23,41 @@ Apify.main(async () => {
     const crawler = new Apify.PuppeteerCrawler({
         requestList,
         requestQueue,
+
         launchContext: {
             // Chrome with stealth should work for most websites.
             // If it doesn't, feel free to remove this.
             // useChrome: true,
             // stealth: true,
         },
-        // browserPoolOptions: {
-        //     useFingerprints: true,
-        // },
+
+        autoscaledPoolOptions: {
+            maxConcurrency: process.env.VK_SCRAPPER_AUTOSCALED_POOL_CONCURRENCY
+                ? +process.env.VK_SCRAPPER_AUTOSCALED_POOL_CONCURRENCY
+                : undefined,
+            desiredConcurrency: process.env.VK_SCRAPPER_AUTOSCALED_POOL_CONCURRENCY
+                ? +process.env.VK_SCRAPPER_AUTOSCALED_POOL_CONCURRENCY
+                : undefined,
+        },
+
         proxyConfiguration: !process.env.VK_SCRAPPER_NO_PROXY ? (await Apify.createProxyConfiguration()) : undefined,
         useSessionPool: true,
-        // sessionPoolOptions: {
-        //     maxPoolSize: 3,
-        // },
-        maxRequestsPerCrawl: process.env.MAX_REQUESTS_PER_CRAWL ? +process.env.MAX_REQUESTS_PER_CRAWL : undefined,
+        sessionPoolOptions: {
+            maxPoolSize: process.env.VK_SCRAPPER_SESSION_MAX_POOL_SIZE
+                ? +process.env.VK_SCRAPPER_SESSION_MAX_POOL_SIZE
+                : undefined,
+        },
         persistCookiesPerSession: true,
+
+        maxRequestsPerCrawl: process.env.VK_SCRAPPER_MAX_REQUESTS_PER_CRAWL
+            ? +process.env.VK_SCRAPPER_MAX_REQUESTS_PER_CRAWL
+            : undefined,
+
         preNavigationHooks: [
             async ({ page, request, session }) => {
                 const sessionCookies = session.getPuppeteerCookies(request.url);
 
-                if (!sessionCookies.length) {
+                if (!sessionCookies?.length) {
                     await page.goto(input.baseUrl);
                     const signInButton = await page.$('.VkIdForm__signInButton');
                     await signInButton?.click();
@@ -62,11 +80,14 @@ Apify.main(async () => {
                 }
             },
         ],
-        handlePageFunction: async ({ request, page, session }) => {
-            const quickLoginForm = await page.$('form#quick_login_form');
-            const title = await page.title();
+        handlePageFunction: async ({ request, response, page, session }) => {
+            const status = (response as HTTPResponse).status();
+            if (session.retireOnBlockedStatusCodes(status)) {
+                return;
+            }
 
-            if (quickLoginForm || title === '429 Too Many Requests') {
+            const quickLoginForm = await page.$('form#quick_login_form');
+            if (quickLoginForm) {
                 session.markBad();
                 return;
             }
@@ -77,7 +98,7 @@ Apify.main(async () => {
         },
     });
 
-    Apify.utils.log.info("Starting the crawl.");
+    Apify.utils.log.info('Starting the crawl.');
     await crawler.run();
-    Apify.utils.log.info("Crawl finished.");
+    Apify.utils.log.info('Crawl finished.');
 });

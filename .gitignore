@@ -4,3 +4,7 @@
 node_modules
 
 apify_storage
+
+.env
+
+dist
